@@ -63,6 +63,7 @@ int main()
         {
             game.mouseButtonReleased(mouseReleased);
         }
+        if (const auto* e = event->getIf<sf::Event::MouseMoved>()) game.dragspirte(e);       
     }
 
     //'update' element of the game loop
