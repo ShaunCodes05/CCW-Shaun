@@ -4,9 +4,9 @@
 #include <sstream>
 
 // to do list 
-// 1. fix texture and button overlap
+// 1. fix texture and button overlap (kinda done)
 // 2 make button pressed show on passport 
-// 3 allow passport to be dragged to animal to progress to next animal instead of clicking buttons 
+// 3 allow passport to be dragged to animal to progress to next animal instead of clicking buttons (bounding boxes)
 // 4 maybe add timer idk prob drop idea 
 
 
@@ -74,16 +74,23 @@ bool Game::init()
 	reject_btn->setPosition({ padding, reject_y });
 	accept_btn->setPosition({ padding, accept_y });
 
-	reject_label->setPosition(
-		reject_btn->getPosition() +
-		(reject_btn->getGlobalBounds().size - reject_label->getGlobalBounds().size) / 2.f
-	);
-	accept_label->setPosition(
-		accept_btn->getPosition() +
-		(accept_btn->getGlobalBounds().size - accept_label->getGlobalBounds().size) / 2.f
-	);
+	reject_label->setPosition({ 1000.f,1000.f });
+	accept_label->setPosition({ 1000.f,1000.f });
 
-	newAnimal(); 
+	newAnimal();
+	character->setScale({ 0.5f,0.5f });
+
+
+
+	//reject_label->setPosition(
+		//reject_btn->getPosition() +
+		//(reject_btn->getGlobalBounds().size - reject_label->getGlobalBounds().size) / 5.f
+	//);
+	//accept_label->setPosition(
+		//accept_btn->getPosition() +
+		//(accept_btn->getGlobalBounds().size - accept_label->getGlobalBounds().size) / 5.f
+	//);
+
 	//menu code
 	title_text.setString("Main Text");
 	title_text.setFont(font);
@@ -114,6 +121,13 @@ void Game::update(float dt)
 	{
 		return;
 	}
+
+	if (passport->getGlobalBounds().findIntersection(character->getGlobalBounds()))
+	{
+		
+		std::cout << "true";
+	}
+
 }
 
 void Game::render()
@@ -160,6 +174,8 @@ void Game::mouseButtonPressed(const sf::Event::MouseButtonPressed* event)
 				std::cout << "Wrong! That passport didn't match.\n";
 				mistakes++;
 			}
+
+			accept_label->setPosition({});
 
 			newAnimal();
 			return;
@@ -277,3 +293,4 @@ void Game::dragspirte(const sf::Event::MouseMoved* event)
 		dragged->setPosition(drag_possition);
 	}
 }
+
