@@ -1,4 +1,3 @@
-
 #ifndef SFML_GAME_H
 #define SFML_GAME_H
 
@@ -32,10 +31,10 @@ private:
     sf::RenderWindow& window;
 
     // Background
-    sf::Texture background_texture{"../Data/Images/WhackaMole Worksheet/background.png"};
+    sf::Texture background_texture{ "../Data/Images/WhackaMole Worksheet/background.png" };
     sf::Sprite background{ background_texture };
 
-    // Animal & passport textures array test 
+    // Animal and passport textures
     std::array<sf::Texture, 3> animals;
     std::array<sf::Texture, 3> passports;
 
@@ -43,19 +42,19 @@ private:
     sf::Sprite* character = nullptr;
     sf::Sprite* passport = nullptr;
 
-    // Button & stamp textures
+    // Button and stamp textures
     sf::Texture accept_button;
     sf::Texture reject_button;
     sf::Texture accept_texture;
     sf::Texture reject_texture;
 
-    // Button & stamp sprites
+    // Button and stamp sprites
     sf::Sprite* accept_btn = nullptr;
     sf::Sprite* reject_btn = nullptr;
     sf::Sprite* accept_label = nullptr;
     sf::Sprite* reject_label = nullptr;
 
-    // Font & menu
+    // Font and menu
     sf::Font font{ "../Data/Fonts/OpenSans-Bold.ttf" };
 
     bool in_menu = true;
@@ -64,14 +63,13 @@ private:
     sf::Text quit_option{ font };
 
     bool play_selected = true;
-
     bool should_accpet = true;
 
     // Passport decision
     bool decision_made = false;
     bool decision_accept = false;
 
-    // stamp
+    // Stamp
     sf::Sprite* current_label = nullptr;
 
     // Dragging
@@ -79,12 +77,20 @@ private:
     sf::Vector2f drag_offset;
     sf::Vector2f passport_home_position;
 
-    // Score
+    // Score and end-game state
     int score = 0;
     int mistakes = 0;
+    static constexpr int target_decisions = 5;
 
-    // btn toggle test
+    bool game_finished = false;
+    bool player_won = false;
+
+    sf::Text result_text{ font };
+    sf::Text restart_text{ font };
+
+    // Button visibility
     bool show_decision_buttons = false;
 };
 
 #endif // SFML_GAME_H
+

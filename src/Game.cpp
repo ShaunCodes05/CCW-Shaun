@@ -128,7 +128,7 @@ bool Game::init()
     title_text.setPosition({ 200.f, 100.f });
 
     // Menu options
-    const unsigned int option_size =static_cast<unsigned int>(std::clamp(static_cast<float>(window.getSize().y) * 0.06f,16.f,120.f));
+    const unsigned int option_size = static_cast<unsigned int>(std::clamp(static_cast<float>(window.getSize().y) * 0.06f, 16.f, 120.f));
 
     play_option.setString("> Play <");
     play_option.setCharacterSize(option_size);
@@ -141,6 +141,14 @@ bool Game::init()
     play_selected = true;
     in_menu = true;
 
+    // End-game messages
+    result_text.setCharacterSize(72);
+    result_text.setFillColor(sf::Color::White);
+
+    restart_text.setString("Press R to play again");
+    restart_text.setCharacterSize(32);
+    restart_text.setFillColor(sf::Color::White);
+
     newAnimal();
 
     return true;
@@ -149,7 +157,7 @@ bool Game::init()
 void Game::update(float dt)
 {
     // Gameplay updates can go here later maybe.
-	// Passport sub is in mouse button released and dragspirte functions for now dont forget.
+    // Passport sub is in mouse button released and dragspirte functions for now dont forget.
     (void)dt;
 }
 
@@ -162,6 +170,14 @@ void Game::render()
         window.draw(title_text);
         window.draw(play_option);
         window.draw(quit_option);
+        return;
+    }
+
+    // Show the win/lose screen once the game has finished.
+    if (game_finished)
+    {
+        window.draw(result_text);
+        window.draw(restart_text);
         return;
     }
 
@@ -186,7 +202,7 @@ void Game::render()
 void Game::mouseButtonPressed(
     const sf::Event::MouseButtonPressed* event)
 {
-    if (in_menu)
+    if (in_menu || game_finished)
     {
         return;
     }
@@ -286,7 +302,7 @@ void Game::mouseButtonReleased(
 
         if (dropped_on_animal)
         {
-  
+
             if (decision_accept == should_accpet)
             {
                 ++score;
@@ -301,8 +317,51 @@ void Game::mouseButtonReleased(
             std::cout << "Score: " << score
                 << " | Mistakes: " << mistakes << '\n';
 
+            // Check whether the player has won or lost.
+            if (score >= target_decisions)
+            {
+                game_finished = true;
+                player_won = true;
+                result_text.setString("YOU WIN!");
+            }
+            else if (mistakes >= target_decisions)
+            {
+                game_finished = true;
+                player_won = false;
+                result_text.setString("YOU LOSE!");
+            }
+
+            if (game_finished)
+            {
+                // Centre the result and restart prompt.
+                const auto result_bounds = result_text.getLocalBounds();
+                result_text.setOrigin({
+                    result_bounds.position.x + result_bounds.size.x / 2.f,
+                    result_bounds.position.y + result_bounds.size.y / 2.f
+                    });
+                result_text.setPosition({
+                    static_cast<float>(window.getSize().x) / 2.f,
+                    static_cast<float>(window.getSize().y) / 2.f - 40.f
+                    });
+
+                const auto restart_bounds = restart_text.getLocalBounds();
+                restart_text.setOrigin({
+                    restart_bounds.position.x + restart_bounds.size.x / 2.f,
+                    restart_bounds.position.y + restart_bounds.size.y / 2.f
+                    });
+                restart_text.setPosition({
+                    static_cast<float>(window.getSize().x) / 2.f,
+                    static_cast<float>(window.getSize().y) / 2.f + 50.f
+                    });
+
+                std::cout << (player_won ? "PLAYER WON\n" : "PLAYER LOST\n");
+            }
+            else
+            {
+                newAnimal();
+            }
+
             dragged = nullptr;
-            newAnimal();
             return;
         }
 
@@ -332,7 +391,7 @@ void Game::mouseButtonReleased(
 
 void Game::dragspirte(const sf::Event::MouseMoved* event)
 {
-    if (in_menu || dragged != passport)
+    if (in_menu || game_finished || dragged != passport)
     {
         return;
     }
@@ -366,6 +425,19 @@ void Game::dragspirte(const sf::Event::MouseMoved* event)
 
 void Game::keyPressed(const sf::Event::KeyPressed* event)
 {
+    // Restart after winning or losing.
+    if (game_finished &&
+        event->scancode == sf::Keyboard::Scancode::R)
+    {
+        score = 0;
+        mistakes = 0;
+        game_finished = false;
+        player_won = false;
+        show_decision_buttons = false;
+        newAnimal();
+        return;
+    }
+
     if (in_menu)
     {
         if (event->scancode == sf::Keyboard::Scancode::Left ||
@@ -388,6 +460,12 @@ void Game::keyPressed(const sf::Event::KeyPressed* event)
         {
             if (play_selected)
             {
+                score = 0;
+                mistakes = 0;
+                game_finished = false;
+                player_won = false;
+                show_decision_buttons = false;
+                newAnimal();
                 in_menu = false;
             }
             else
